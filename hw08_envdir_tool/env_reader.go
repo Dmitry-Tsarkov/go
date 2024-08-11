@@ -12,19 +12,6 @@ type EnvValue struct {
 	NeedRemove bool
 }
 
-func cleanString(s string) string {
-	var cleanedLine strings.Builder
-	for i := 0; i < len(s); i++ {
-		ch := s[i]
-		if ch != '\x00' {
-			cleanedLine.WriteRune(rune(ch))
-		} else {
-			cleanedLine.WriteRune('\n')
-		}
-	}
-	return cleanedLine.String()
-}
-
 func ReadDir(dir string) (Environment, error) {
 	files, err := os.ReadDir(dir)
 	if err != nil {
@@ -38,17 +25,27 @@ func ReadDir(dir string) (Environment, error) {
 			continue
 		}
 
-		fileData, err := os.ReadFile(dir + "/" + file.Name())
+		filePath := dir + "/" + file.Name()
+		fileData, err := os.ReadFile(filePath)
 		if err != nil {
 			return nil, err
 		}
 
-		lines := strings.Split(string(fileData), "\n")
-		value := cleanString(lines[0])
+		if len(fileData) == 0 {
+			env[file.Name()] = EnvValue{
+				Value:      "",
+				NeedRemove: true,
+			}
+			continue
+		}
+
+		lines := strings.SplitN(string(fileData), "\n", 2)
+		value := strings.ReplaceAll(lines[0], "\x00", "\n")
+		value = strings.TrimRight(value, " \t\n")
 
 		env[file.Name()] = EnvValue{
 			Value:      value,
-			NeedRemove: len(value) == 0,
+			NeedRemove: false,
 		}
 	}
 
