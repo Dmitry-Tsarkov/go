@@ -9,9 +9,9 @@ import (
 func RunCmd(cmd []string, env Environment) (string, int) {
 	command := exec.Command(cmd[0], cmd[1:]...) //nolint:gosec
 
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
+	// command.Stdin = os.Stdin
+	// command.Stdout = os.Stdout
+	// command.Stderr = os.Stderr
 
 	for key, value := range env {
 		if value.NeedRemove {
