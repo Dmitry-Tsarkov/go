@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"log/slog"
+	"os"
 )
 
 var (
@@ -18,5 +21,22 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+
+	if from == "" {
+		slog.Error("Ошибка: не указан исходный файл")
+		os.Exit(1)
+	}
+
+	if to == "" {
+		slog.Error("Ошибка: не указан файл назначения")
+		os.Exit(1)
+	}
+
+	err := Copy(from, to, offset, limit)
+	if err != nil {
+		slog.Error("Ошибка", "error", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Copy succeeded")
 }
